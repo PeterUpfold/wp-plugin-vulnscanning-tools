@@ -72,7 +72,7 @@ max_lines = 10_000
 for line in index_lines.splitlines():
     if line_count >= max_lines:
         current_index_file.close()
-        current_index_file_path = os.path.join(args.outputpath, 'index.html.' + index_file_count)
+        current_index_file_path = os.path.join(args.outputpath, 'index.html.' + str(index_file_count))
         current_index_file = open(current_index_file_path, 'w')
         index_file_count += 1
         line_count = 0
