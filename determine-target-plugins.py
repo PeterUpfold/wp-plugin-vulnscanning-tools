@@ -24,6 +24,7 @@
 from html.parser import HTMLParser
 import argparse
 import os
+import re
 
 
 # argument parsing
@@ -41,10 +42,15 @@ args = argparser.parse_args()
 class RootSVNPageParser(HTMLParser):
     def __init__(self):
         super().__init__()
+        self.slug_regex = re.compile(r'^((\w)*(\-)*)*/$')
+        self.slugs = []
 
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
-            print(attrs[0][1][-1])
+            slug = attrs[0][1]
+            if self.slug_regex.search(slug):
+                print('Adding slug ', slug)
+                self.slugs += slug
 
     def handle_endtag(self, tag):
         #print ("end", tag)
@@ -56,3 +62,7 @@ class RootSVNPageParser(HTMLParser):
 svn_page_parser = RootSVNPageParser()
 
 svn_page_parser.feed(args.inputfile.read())
+
+for slug in svn_page_parser.slugs:
+    # go get the plugin page. We'll need to pull the number of installs
+    print('Would handle ', slug)
