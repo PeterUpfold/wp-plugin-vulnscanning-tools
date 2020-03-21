@@ -22,7 +22,7 @@
 
 
 from html.parser import HTMLParser
-import lxml # don't ask me why I'm parsing HTML two different ways. I had some existing code, all right? :)
+from lxml import html # don't ask me why I'm parsing HTML two different ways. I had some existing code, all right? :)
 import argparse
 import os
 import re
@@ -38,7 +38,7 @@ argparser.add_argument('--force', dest='force', help='Allow this script to overw
 
 args = argparser.parse_args()
 
-headers = {'User-Agent', 'determine-target-plugins.py +https://github.com/PeterUpfold/wp-plugin-vulnscanning-tools/'}
+headers = {'User-Agent': 'determine-target-plugins.py +https://github.com/PeterUpfold/wp-plugin-vulnscanning-tools/'}
 
 # * for each top level plugin slug, pull the https://wordpress.org/plugins/{name} page and parse number of installations
 # * Decide which plugins to target based on user base
@@ -80,9 +80,9 @@ for slug in svn_page_parser.slugs:
     plugin_page = requests.get('https://wordpress.org/plugins/' + slug + '/', headers=headers)
     if plugin_page.status_code == 200:
         tree = lxml.html.fromstring(plugin_page.content)
-        installs = tree.xpath('/html/body/div[3]/div/main/article/div[3]/div[1]/ul/li[3]/strong/text()')
+        installs = tree.xpath('//div[@class="entry-meta"]/div/ul/li[3]/strong')[0].text
 
-        print(slug + ' has ' + installs)
+        print(slug + ' has ' + installs[0] + ' installs ')
     else:
         print('Failed on ' + slug + ' with error ' + str(plugin_page.status_code))
 
