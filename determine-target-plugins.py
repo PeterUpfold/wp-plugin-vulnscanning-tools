@@ -59,9 +59,32 @@ class RootSVNPageParser(HTMLParser):
     def handle_data(self, data):
         pass
 
+
 svn_page_parser = RootSVNPageParser()
 
-svn_page_parser.feed(args.inputfile.read())
+# HTMLParser performance has problems >10,000 tags. We will quick & dirty solve this with splitting the file
+index_lines = args.inputfile.read()
+line_count = 0
+current_index_file_path = os.path.join(args.outputpath, 'index.html.0')
+current_index_file = open(current_index_file_path, 'w')
+index_file_count = 1
+max_lines = 10_000
+for line in index_lines.splitlines():
+    if line_count >= max_lines:
+        current_index_file.close()
+        current_index_file_path = os.path.join(args.outputpath, 'index.html.' + index_file_count)
+        current_index_file = open(current_index_file_path, 'w')
+        index_file_count += 1
+        line_count = 0
+
+    current_index_file.write(line + '\n')
+    line_count += 1
+
+current_index_file.close()
+
+for i in range(0, index_file_count-1):
+    with open(os.path.join(args.outputpath, 'index.html.' + i, 'r') as current_index_file):
+        svn_page_parser.feed(current_index_file.read())
 
 for slug in svn_page_parser.slugs:
     # go get the plugin page. We'll need to pull the number of installs
