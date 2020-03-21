@@ -44,7 +44,7 @@ class RootSVNPageParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
-            print(attrs)
+            print(attrs['href'][-1])
 
     def handle_endtag(self, tag):
         #print ("end", tag)
