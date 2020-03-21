@@ -34,9 +34,6 @@ argparser.add_argument('--force', dest='force', help='Allow this script to overw
 
 args = argparser.parse_args()
 
-if not os.path.exists(args.inputfile):
-    raise ValueError("Input HTML file does not exist.")
-
 
 # * for each top level plugin slug, pull the https://wordpress.org/plugins/{name} page and parse number of installations
 # * Decide which plugins to target based on user base
@@ -46,10 +43,12 @@ class RootSVNPageParser(HTMLParser):
         super().__init__()
 
     def handle_starttag(self, tag, attrs):
-        print("Start ", tag)
+        if tag == 'a':
+            print(attrs)
 
     def handle_endtag(self, tag):
-        print ("end", tag)
+        #print ("end", tag)
+        pass
 
     def handle_data(self, data):
         pass
