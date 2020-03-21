@@ -50,7 +50,7 @@ class RootSVNPageParser(HTMLParser):
             slug = attrs[0][1]
             if self.slug_regex.search(slug):
                 print('Adding slug ', slug)
-                self.slugs += slug
+                self.slugs.append(slug)
 
     def handle_endtag(self, tag):
         #print ("end", tag)
