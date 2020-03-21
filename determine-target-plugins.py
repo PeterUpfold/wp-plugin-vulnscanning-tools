@@ -60,8 +60,6 @@ class RootSVNPageParser(HTMLParser):
         pass
 
 
-svn_page_parser = RootSVNPageParser()
-
 # HTMLParser performance has problems >10,000 tags. We will quick & dirty solve this with splitting the file
 index_lines = args.inputfile.read()
 line_count = 0
@@ -84,6 +82,7 @@ current_index_file.close()
 
 for i in range(0, index_file_count-1):
     with open(os.path.join(args.outputpath, 'index.html.' + str(i)), 'r') as current_index_file:
+        svn_page_parser = RootSVNPageParser()
         svn_page_parser.feed(current_index_file.read())
 
 for slug in svn_page_parser.slugs:
