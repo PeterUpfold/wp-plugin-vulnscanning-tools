@@ -28,6 +28,7 @@ import os
 import re
 import requests
 from time import sleep
+import json
 
 
 # argument parsing
@@ -72,6 +73,7 @@ svn_page_parser = RootSVNPageParser()
 svn_page_parser.feed(args.inputfile.read())
 
 plugins = {} # store our overall state
+ # save state as we go along
 
 for slug in svn_page_parser.slugs:
     # go get the plugin page. We'll need to pull the number of installs
@@ -79,13 +81,16 @@ for slug in svn_page_parser.slugs:
 
     plugin_page = requests.get('https://wordpress.org/plugins/' + slug + '/', headers=headers)
     if plugin_page.status_code == 200:
-        tree = lxml.html.fromstring(plugin_page.content)
+        tree = html.fromstring(plugin_page.content)
         installs = tree.xpath('//div[@class="entry-meta"]/div/ul/li[3]/strong')[0].text
 
-        print(slug + ' has ' + installs[0] + ' installs ')
+        print(slug + ' has ' + installs + ' installs ')
+        plugins[slug] = installs
     else:
         print('Failed on ' + slug + ' with error ' + str(plugin_page.status_code))
 
+    with open(os.path.join(args.outputpath, "plugins.json"), 'w') as json_file:
+        json_file.write(json.dumps(plugins))
 
     print('Finished with ', slug)
     sleep(3) # robots.txt for plugins.svn.wordpress.org indicates this
