@@ -21,6 +21,7 @@
 # limitations under the License.
 
 
+from html.parser import HTMLParser
 import argparse
 import os
 
@@ -40,3 +41,19 @@ if not os.path.exists(args.inputfile):
 # * for each top level plugin slug, pull the https://wordpress.org/plugins/{name} page and parse number of installations
 # * Decide which plugins to target based on user base
 
+class RootSVNPageParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+
+    def handle_starttag(self, tag, attrs):
+        print("Start ", tag)
+
+    def handle_endtag(self, tag):
+        print ("end", tag)
+
+    def handle_data(self, data):
+        pass
+
+svn_page_parser = RootSVNPageParser()
+
+svn_page_parser.feed(args.inputfile.read())
