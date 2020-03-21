@@ -83,7 +83,7 @@ for line in index_lines.splitlines():
 current_index_file.close()
 
 for i in range(0, index_file_count-1):
-    with open(os.path.join(args.outputpath, 'index.html.' + i, 'r')) as current_index_file:
+    with open(os.path.join(args.outputpath, 'index.html.' + str(i), 'r')) as current_index_file:
         svn_page_parser.feed(current_index_file.read())
 
 for slug in svn_page_parser.slugs:
