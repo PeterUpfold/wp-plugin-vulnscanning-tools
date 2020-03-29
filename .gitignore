@@ -1,2 +1,3 @@
 *.swp
+source/ # source of plugins
 .DS_Store
