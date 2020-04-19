@@ -41,34 +41,38 @@ php_file_list = []
 
 current_position = json.load(open(args.positionfile, 'r'))
 current_plugin = ''
+current_plugin_index = 0
+skip = 0
 
 with open(args.outputfile, 'r') as output:
     php_file_list = json.load(output)
 
-print(php_file_list)
-
 def sigint_handler(signal, frame):
+    global current_plugin
+    global current_plugin_index
     # dump current file list and start position
 
     with open(args.outputfile, 'w') as output:
-        output.write(json.dumps(php_file_list))
+        output.write(json.dumps(php_file_list, indent=4))
 
     with open(args.positionfile, 'w') as position:
-        position.write(json.dumps({'current_plugin': current_plugin }))
+        position.write(json.dumps({'current_plugin': current_plugin, 'index': current_plugin_index }, indent=4))
 
-    
-    sys.exit(0)
+    print('===== Save position: ' + current_plugin + ' at ' + str(current_plugin_index))
+    if signal is not None:
+        sys.exit(0)
 
 signal.signal(signal.SIGINT, sigint_handler)
 
 def process_tree(url):
     global current_plugin
     global php_file_list
+    global current_plugin_index
     page = requests.get(url, headers=headers)
 
     # split url and gather plugin slug
     current_plugin = url.split('/')[3]
-    print('==> Current plugin: ' + current_plugin)
+    print('==> Current plugin: ' + current_plugin + ' url : ' + url)
 
     if page.status_code == 200:
         soup = BeautifulSoup(page.content, 'html.parser')
@@ -89,7 +93,20 @@ def process_tree(url):
 
 plugins = json.load(args.inputfile)
 
+# load current position
+with open(args.positionfile, 'r') as position:
+    position_json = json.load(position)
+    if 'index' in position_json:
+        skip = position_json['index']
+
 for plugin in plugins:
+    if skip > 0:
+        skip -= 1
+        current_plugin_index += 1
+        print('Skip ' + plugin + ' as already processed')
+        continue
     process_tree('https://plugins.svn.wordpress.org/' + plugin + '/trunk/')
+    sigint_handler(None, None)
+    current_plugin_index += 1
 
 sigint_handler(None, None)
