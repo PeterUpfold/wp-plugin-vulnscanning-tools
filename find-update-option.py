@@ -66,6 +66,9 @@ with open(args.positionfile, 'r') as position:
     if 'index' in position_json:
         skip = position_json['index']
 
+with open(args.outputfile, 'r') as reload_input:
+    target_lines = json.load(reload_input)
+
 for file in file_list:
     if skip > 0:
         skip -= 1
@@ -92,7 +95,7 @@ for file in file_list:
     
     current_url = file
     current_index += 1
-    if current_index % 20 == 0:
+    if current_index % 256 == 0:
         sigint_handler(None, None)
 
 sigint_handler(None, None)
